@@ -40,7 +40,6 @@ button{
   cursor:pointer;
 }
 
-/* shake hack */
 .shake{
   animation:shake .08s infinite;
 }
@@ -53,7 +52,6 @@ button{
   100%{transform:translate(0,0);}
 }
 
-/* loading */
 .bar{
   width:300px;
   height:20px;
@@ -67,14 +65,12 @@ button{
   background:#00ff9d;
 }
 
-/* imagem */
 #meme{
   width:260px;
   margin-top:15px;
   border:2px solid #00ff9d;
 }
 
-/* carta */
 .card{
   transform:scaleY(0);
   transform-origin:top;
@@ -87,7 +83,6 @@ button{
   transform:scaleY(1);
 }
 
-/* corações */
 .heart{
   position:absolute;
   font-size:22px;
@@ -104,12 +99,17 @@ button{
 
 <body>
 
-<!-- 🎧 MÚSICA -->
-<iframe id="music"
-width="0" height="0"
+<!-- 🎧 SOUND -->
+<iframe
+id="music"
+width="0"
+height="0"
 style="display:none"
-src=""
-allow="autoplay"></iframe>
+allow="autoplay"
+src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/djcharmozinha-1/parabens-pra-voce-funk-remix&auto_play=false">
+</iframe>
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
 
 <!-- TELA 1 -->
 <div id="tela1" class="center">
@@ -197,38 +197,53 @@ Feliz aniversário! 🎂❤️
 
 <script>
 
+let widget;
+let soundStarted = false;
+let audioCtx;
+
+/* CONFIRMAÇÃO */
 function showConfirm(){
   document.getElementById("tela1").classList.add("hidden");
   document.getElementById("tela2").classList.remove("hidden");
 }
 
-/* 🔊 SOM DE INICIALIZAÇÃO (HACK) */
-function bootBeep(){
-  let ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let osc = ctx.createOscillator();
-  let gain = ctx.createGain();
+/* 🔊 SOUND CLOUD REAL */
+function startSound(){
+  if(soundStarted) return;
+  soundStarted = true;
 
-  osc.type = "square";
-  osc.frequency.value = 600;
-  gain.gain.value = 0.03;
-
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start();
-  osc.stop(ctx.currentTime + 0.05);
+  widget = SC.Widget(document.getElementById("music"));
+  widget.play();
 }
 
-/* 🚀 FLUXO PRINCIPAL */
+/* 🔊 TAPYSOUND (HACK/TECLADO) */
+function tapySound(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  let osc = audioCtx.createOscillator();
+  let gain = audioCtx.createGain();
+
+  osc.type = "square";
+  osc.frequency.value = 650;
+  gain.gain.value = 0.02;
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.04);
+}
+
+/* FLUXO */
 function startFlow(){
 
   document.getElementById("tela1").classList.add("hidden");
   document.getElementById("tela2").classList.add("hidden");
   document.getElementById("loading").classList.remove("hidden");
 
-  // 🎧 música entra após clique
-  document.getElementById("music").src =
-  "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/djcharmozinha-1/parabens-pra-voce-funk-remix&auto_play=true";
+  startSound();
 
   let bar = document.getElementById("fill");
   let p = 0;
@@ -238,8 +253,7 @@ function startFlow(){
     p += 2;
     bar.style.width = p + "%";
 
-    // 🔊 som de boot durante loading
-    bootBeep();
+    tapySound();
 
     if(p >= 100){
       clearInterval(i);
@@ -255,7 +269,7 @@ function startFlow(){
   },80);
 }
 
-/* carta */
+/* CARTA */
 function openCard(){
   document.getElementById("result").classList.add("hidden");
   document.getElementById("tela4").classList.remove("hidden");
@@ -266,19 +280,19 @@ function openCard(){
   },300);
 }
 
-/* corações */
+/* CORAÇÕES */
 function hearts(){
   for(let i=0;i<40;i++){
     setTimeout(()=>{
-      let h = document.createElement("div");
-      h.className = "heart";
-      h.innerHTML = "💖";
-      h.style.left = Math.random()*window.innerWidth + "px";
-      h.style.top = Math.random()*window.innerHeight + "px";
+      let h=document.createElement("div");
+      h.className="heart";
+      h.innerHTML="💖";
+      h.style.left=Math.random()*window.innerWidth+"px";
+      h.style.top=Math.random()*window.innerHeight+"px";
       document.body.appendChild(h);
 
       setTimeout(()=>h.remove(),2000);
-    }, i*60);
+    },i*60);
   }
 }
 
