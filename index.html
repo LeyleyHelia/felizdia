@@ -40,6 +40,26 @@ button{
   cursor:pointer;
 }
 
+/* BOTÃO DE ÁUDIO */
+#audioUnlock{
+  position:fixed;
+  top:10px;
+  right:10px;
+  width:42px;
+  height:42px;
+  border:1px solid #00ff9d;
+  color:#00ff9d;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:18px;
+  background:black;
+  z-index:9999;
+}
+
+/* shake */
 .shake{
   animation:shake .08s infinite;
 }
@@ -52,6 +72,7 @@ button{
   100%{transform:translate(0,0);}
 }
 
+/* loading */
 .bar{
   width:300px;
   height:20px;
@@ -65,12 +86,14 @@ button{
   background:#00ff9d;
 }
 
+/* meme */
 #meme{
   width:260px;
   margin-top:15px;
   border:2px solid #00ff9d;
 }
 
+/* carta */
 .card{
   transform:scaleY(0);
   transform-origin:top;
@@ -83,6 +106,7 @@ button{
   transform:scaleY(1);
 }
 
+/* corações */
 .heart{
   position:absolute;
   font-size:22px;
@@ -99,12 +123,15 @@ button{
 
 <body>
 
+<!-- 🔊 BOTÃO ÁUDIO -->
+<div id="audioUnlock" onclick="unlockAudio()">🔊</div>
+
 <!-- 🎧 SOUND -->
 <iframe
 id="music"
-width="0"
-height="0"
-style="display:none"
+width="1"
+height="1"
+style="opacity:0.01;position:absolute;bottom:0;"
 allow="autoplay"
 src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/djcharmozinha-1/parabens-pra-voce-funk-remix&auto_play=false">
 </iframe>
@@ -198,42 +225,27 @@ Feliz aniversário! 🎂❤️
 <script>
 
 let widget;
-let soundStarted = false;
-let audioCtx;
+let audioUnlocked = false;
+
+/* 🔊 LIBERAR ÁUDIO (BOTÃO CANTO) */
+function unlockAudio(){
+  if(audioUnlocked) return;
+
+  audioUnlocked = true;
+  widget = SC.Widget(document.getElementById("music"));
+
+  widget.load(
+    "https://soundcloud.com/djcharmozinha-1/parabens-pra-voce-funk-remix",
+    { auto_play: false }
+  );
+
+  alert("🔊 Áudio desbloqueado!");
+}
 
 /* CONFIRMAÇÃO */
 function showConfirm(){
   document.getElementById("tela1").classList.add("hidden");
   document.getElementById("tela2").classList.remove("hidden");
-}
-
-/* 🔊 SOUND CLOUD REAL */
-function startSound(){
-  if(soundStarted) return;
-  soundStarted = true;
-
-  widget = SC.Widget(document.getElementById("music"));
-  widget.play();
-}
-
-/* 🔊 TAPYSOUND (HACK/TECLADO) */
-function tapySound(){
-  if(!audioCtx){
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-
-  let osc = audioCtx.createOscillator();
-  let gain = audioCtx.createGain();
-
-  osc.type = "square";
-  osc.frequency.value = 650;
-  gain.gain.value = 0.02;
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.04);
 }
 
 /* FLUXO */
@@ -243,7 +255,10 @@ function startFlow(){
   document.getElementById("tela2").classList.add("hidden");
   document.getElementById("loading").classList.remove("hidden");
 
-  startSound();
+  // toca só se desbloqueado
+  if(audioUnlocked && widget){
+    widget.play();
+  }
 
   let bar = document.getElementById("fill");
   let p = 0;
@@ -252,8 +267,6 @@ function startFlow(){
 
     p += 2;
     bar.style.width = p + "%";
-
-    tapySound();
 
     if(p >= 100){
       clearInterval(i);
