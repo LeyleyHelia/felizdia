@@ -26,7 +26,7 @@ body{
 .box{
   border:2px solid #00ff9d;
   padding:20px;
-  width:340px;
+  width:360px;
 }
 
 .hidden{display:none;}
@@ -40,12 +40,7 @@ button{
   cursor:pointer;
 }
 
-button:hover{
-  background:#00ff9d;
-  color:black;
-}
-
-/* tremor */
+/* shake hack */
 .shake{
   animation:shake .08s infinite;
 }
@@ -72,19 +67,21 @@ button:hover{
   background:#00ff9d;
 }
 
-/* meme */
+/* imagem */
 #meme{
   width:260px;
   margin-top:15px;
   border:2px solid #00ff9d;
+  transition:1s;
 }
 
 /* carta */
 .card{
   transform:scaleY(0);
   transform-origin:top;
-  transition:.6s ease;
+  transition:.7s ease;
   white-space:pre-line;
+  cursor:pointer;
 }
 
 .card.open{
@@ -108,10 +105,11 @@ button:hover{
 
 <body>
 
-<!-- 🎧 MÚSICA CORRETA -->
-<iframe id="music" width="0" height="0"
-allow="autoplay"
-src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/djcharmozinha-1/parabens-pra-voce-funk-remix&auto_play=true">
+<!-- 🎵 YouTube (continua tocando sempre depois do clique) -->
+<iframe id="music"
+width="0" height="0"
+src=""
+allow="autoplay">
 </iframe>
 
 <!-- TELA 1 -->
@@ -122,12 +120,21 @@ src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/djcharmozinha
     ╚══════════════════════╝
     <br><br>
 
-    <button onclick="start()">Sim</button>
-    <button onclick="start()">Não</button>
-  </div>
+    <button onclick="goFinal()">Sim</button>
+  <button onclick="certeza()">Não</button>
 </div>
 
-<!-- LOADING -->
+<!-- TELA 2 -->
+<div id="tela2" class="center hidden">
+  <div>👀 Tem certeza?</div><br>
+  <button onclick="goFinal()">Sim...</button>
+  <button onclick="goFinal()">Tá me tirando? 😒</button>
+</div>
+
+<!-- CONTEÚDO FINAL -->
+<div id="final" class="center hidden">
+
+<!-- TELA 2 -->
 <div id="tela2" class="center hidden">
   <div class="box">
 Inicializando sistema...
@@ -136,26 +143,27 @@ Inicializando sistema...
 
 ✓ Conectando...<br>
 ✓ Verificando calendário...<br>
-✓ Buscando aniversariante...<br>
+✓ Procurando aniversariante...<br>
+✓ Buscando informações...<br>
   </div>
 </div>
 
-<!-- RESULTADO + MEME -->
+<!-- RESULTADO -->
 <div id="tela3" class="center hidden">
   <div class="box">
 Aniversariante localizado.<br><br>
 
 Nome........ João Vittor<br>
 Apelido..... Mozão<br>
+Nascimento.. 29/06/2000<br>
 Status...... ❤️ Encontrado<br>
   </div>
 
-  <!-- MEME CORRETO -->
   <img id="meme"
-  src="https://i.imgflip.com/1bij.jpg">
+  src="https://i.pinimg.com/474x/90/3f/d9/903fd9a3235c1f9abe27098a6b33ec3c.jpg">
 
   <br><br>
-  <button onclick="openCard()">Abrir mensagem</button>
+  <button onclick="openCard()">Continuar</button>
 </div>
 
 <!-- CARTA -->
@@ -164,7 +172,19 @@ Status...... ❤️ Encontrado<br>
 
 Parabéns pelo seu dia, meu bem. ❤️
 
-Eu sei que você não é de comemorar aniversário, mas espero que consiga aproveitar o máximo possível o dia de hoje, do seu jeito. Que muitos dos seus sonhos se realizem e que você prospere cada vez mais em tudo aquilo que deseja conquistar. Também sei que tem sido um período difícil. Às vezes parece que se formou uma bola de neve com todos os problemas possíveis e que ela pode desabar a qualquer momento. Mas eu espero que você nunca esqueça que isso é só uma fase. Por mais pesada que ela pareça agora, ela vai passar. E, acima de tudo, quero que você se lembre de que eu estou aqui com você. Porque além de sua mina, sua amiga, sou sua namorada (sente a referência hahaha). Estou aqui para te apoiar, te ouvir, te ajudar e embarcar até nas ideias mais absurdas possíveis.
+Eu sei que você não é de comemorar aniversário, mas espero que consiga aproveitar o máximo possível o dia de hoje, do seu jeito.
+
+Que muitos dos seus sonhos se realizem e que você prospere cada vez mais em tudo aquilo que deseja conquistar.
+
+Também sei que tem sido um período difícil. Às vezes parece que se formou uma bola de neve com todos os problemas possíveis e que ela pode desabar a qualquer momento.
+
+Mas eu espero que você nunca esqueça que isso é só uma fase. Por mais pesada que ela pareça agora, ela vai passar.
+
+E, acima de tudo, quero que você se lembre de que eu estou aqui com você.
+
+Porque além de sua mina, sua amiga, sou sua namorada (sente a referência hahaha).
+
+Estou aqui para te apoiar, te ouvir, te ajudar e embarcar até nas ideias mais absurdas possíveis.
 
 Sempre vou estar torcendo por você, pelas suas conquistas, pelos seus sonhos e pela pessoa incrível que você é.
 
@@ -177,42 +197,22 @@ Feliz aniversário! 🎂❤️
 
 <script>
 
-/* som de teclado */
-function typeSound(){
-  let ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let osc = ctx.createOscillator();
-  let gain = ctx.createGain();
-
-  osc.type = "square";
-  osc.frequency.value = 700;
-
-  gain.gain.value = 0.03;
-
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start();
-  osc.stop(ctx.currentTime + 0.04);
-}
-
-/* iniciar sistema */
-function start(){
+/* resposta inicial CORRETA */
+function resposta(sim){
 
   document.getElementById("tela1").classList.add("hidden");
   document.getElementById("tela2").classList.remove("hidden");
 
-  let bar = document.getElementById("fill");
-  let p = 0;
+  let bar=document.getElementById("fill");
+  let p=0;
 
-  let i = setInterval(()=>{
-    p += 2;
-    bar.style.width = p+"%";
+  let i=setInterval(()=>{
 
-    typeSound();
+    p+=2;
+    bar.style.width=p+"%";
 
-    if(p >= 100){
+    if(p>=100){
       clearInterval(i);
-
       document.body.classList.add("shake");
 
       setTimeout(()=>{
@@ -223,19 +223,36 @@ function start(){
 
   },80);
 }
+  function certeza() {
+  document.getElementById("tela1").classList.add("hidden");
+  document.getElementById("tela2").classList.remove("hidden");
+}
 
-/* abrir carta */
+function goFinal() {
+  document.getElementById("tela1").classList.add("hidden");
+  document.getElementById("tela2").classList.add("hidden");
+
+  // inicia música (após interação)
+  document.getElementById("music").src =
+    "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/djcharmozinha-1/parabens-pra-voce-funk-remix&auto_play=true";
+
+  document.getElementById("final").classList.remove("hidden");
+
+  startSequence();
+}
+
+/* abrir carta (NÃO pula mais sozinho) */
 function openCard(){
   document.getElementById("tela3").classList.add("hidden");
   document.getElementById("tela4").classList.remove("hidden");
 
   setTimeout(()=>{
     document.getElementById("card").classList.add("open");
-    document.body.classList.remove("shake"); // PARA TREMOR AQUI
+    document.body.classList.remove("shake");
   },300);
 }
 
-/* explosão de corações */
+/* corações */
 function hearts(){
   for(let i=0;i<40;i++){
     setTimeout(()=>{
