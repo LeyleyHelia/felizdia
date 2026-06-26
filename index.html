@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Especial ❤️</title>
+
+<style>
+body {
+  margin: 0;
+  background: black;
+  color: #00ff9d;
+  font-family: monospace;
+  overflow: hidden;
+  text-align: center;
+}
+
+.center {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  flex-direction:column;
+}
+
+.box {
+  border:2px solid #00ff9d;
+  padding:20px;
+  width:340px;
+  border-radius:10px;
+  background: rgba(0,0,0,0.8);
+}
+
+/* shake só no hack */
+.shake {
+  animation: shake 0.1s infinite;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px,1px); }
+  25% { transform: translate(-2px,1px); }
+  50% { transform: translate(2px,-1px); }
+  75% { transform: translate(-1px,2px); }
+  100% { transform: translate(0,0); }
+}
+
+button {
+  margin:10px;
+  padding:10px 20px;
+  background:black;
+  color:#00ff9d;
+  border:1px solid #00ff9d;
+  cursor:pointer;
+}
+
+button:hover {
+  background:#00ff9d;
+  color:black;
+}
+
+.hidden { display:none; }
+
+.bar {
+  width:300px;
+  height:20px;
+  border:1px solid #00ff9d;
+  margin:10px auto;
+}
+
+.fill {
+  height:100%;
+  width:0%;
+  background:#00ff9d;
+}
+
+/* CARTA */
+.card {
+  transform: scale(0);
+  transition: 0.6s ease;
+}
+
+.card.open {
+  transform: scale(1);
+}
+
+/* MEME */
+.meme {
+  width:260px;
+  margin-top:10px;
+  border:2px solid #00ff9d;
+}
+
+/* corações */
+.heart {
+  position:absolute;
+  font-size:24px;
+  animation: pop 2s linear forwards;
+}
+
+@keyframes pop {
+  0% { transform: scale(0); opacity:1; }
+  50% { transform: scale(2); }
+  100% { transform: translateY(-200px) scale(0); opacity:0; }
+}
+</style>
+</head>
+
+<body>
+
+<iframe id="music" class="hidden"></iframe>
+
+<!-- TELA 1 -->
+<div id="tela1" class="center">
+  <div class="box">
+    ╔══════════════════════╗<br>
+    Sabe que dia é hoje?<br>
+    ╚══════════════════════╝
+    <br><br>
+
+    <button onclick="start()">Sim</button>
+    <button onclick="start()">Não</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="tela2" class="center hidden">
+  <div class="box">
+Inicializando sistema...
+
+<div class="bar"><div id="fill" class="fill"></div></div>
+
+✓ Conectando...<br>
+✓ Verificando calendário...<br>
+✓ Buscando aniversariante...<br>
+  </div>
+</div>
+
+<!-- RESULTADO + MEME -->
+<div id="tela3" class="center hidden">
+  <div class="box">
+Aniversariante localizado.<br><br>
+
+Nome........ João Vittor<br>
+Status....... ❤️ OK<br>
+  </div>
+
+  <img class="meme"
+  src="https://i.imgflip.com/1bij.jpg">
+
+  <br>
+  <button onclick="openCard()">Abrir mensagem</button>
+</div>
+
+<!-- CARTA FINAL -->
+<div id="tela4" class="center hidden">
+  <div class="box card" id="card" onclick="explodeHearts()">
+
+Parabéns pelo seu dia, meu bem. ❤️
+
+Eu sei que você não é de comemorar aniversário, mas espero que consiga aproveitar o máximo possível o dia de hoje, do seu jeito.
+
+Que muitos dos seus sonhos se realizem...
+
+E acima de tudo, quero que você saiba que eu estou aqui com você.
+
+Te amo, bonitão. ❤️
+
+  </div>
+</div>
+
+<script>
+
+function start(){
+  document.getElementById("tela1").classList.add("hidden");
+  document.getElementById("tela2").classList.remove("hidden");
+
+  // música
+  document.getElementById("music").src =
+  "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/djcharmozinha-1/parabens-pra-voce-funk-remix&auto_play=true";
+
+  let bar = document.getElementById("fill");
+  let p = 0;
+
+  let i = setInterval(()=>{
+    p += 2;
+    bar.style.width = p+"%";
+
+    if(p >= 100){
+      clearInterval(i);
+
+      document.body.classList.add("shake");
+
+      setTimeout(()=>{
+        document.getElementById("tela2").classList.add("hidden");
+        document.getElementById("tela3").classList.remove("hidden");
+      },800);
+    }
+
+  },80);
+}
+
+/* abre carta */
+function openCard(){
+  document.getElementById("tela3").classList.add("hidden");
+  document.getElementById("tela4").classList.remove("hidden");
+
+  let card = document.getElementById("card");
+
+  setTimeout(()=>{
+    card.classList.add("open"); // desdobra carta
+    document.body.classList.remove("shake"); // PARA TREMOR AQUI
+  },200);
+}
+
+/* explosão de corações */
+function explodeHearts(){
+  for(let i=0;i<40;i++){
+    setTimeout(()=>{
+      let h = document.createElement("div");
+      h.className="heart";
+      h.innerHTML="💖";
+      h.style.left=Math.random()*window.innerWidth+"px";
+      h.style.top=Math.random()*window.innerHeight+"px";
+      document.body.appendChild(h);
+
+      setTimeout(()=>h.remove(),2000);
+    }, i*80);
+  }
+}
+
+</script>
+
+</body>
+</html>
